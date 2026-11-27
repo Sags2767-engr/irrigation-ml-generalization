@@ -20,7 +20,7 @@ Do not commit raw sensor, ISMN, or NASA POWER data to this repository unless red
 
 ## Environment
 
-Python 3.12 is the intended runtime. Install the required packages:
+Python 3.12 is the intended runtime. The reported cross-dataset results use XGBoost; install it explicitly. If XGBoost is unavailable, the script falls back to HistGradientBoosting, which is a different model and will not reproduce the reported XGBoost results. Install the required packages:
 
 ```bash
 python -m pip install numpy pandas scikit-learn scipy matplotlib xgboost
@@ -40,7 +40,7 @@ Use `--only p15` or `--only p25` to run one threshold configuration. Without `--
 
 ## Important reproducibility note
 
-The exact script revision, data snapshot, package versions, and command-line arguments must match the analysis that generated the manuscript's reported results. The script's weather-date alignment is part of the analysis definition and must not be changed without re-running the experiment and updating the manuscript. The dissertation identifies this file as the corrected cross-dataset script; verify that the run used to generate the final manuscript tables was generated from this same script revision.
+The script aligns weather by using the previous completed calendar day's daily record for each soil-moisture observation: a row dated D uses weather from D-1. Its three-day rainfall feature sums weather over D-3 through D-1. This is intentional to avoid using a same-day daily aggregate that may include conditions occurring after the observation time. Do not change this alignment without re-running the experiment and updating the manuscript. The script also falls back to HistGradientBoosting when XGBoost is unavailable; that fallback is not equivalent to the XGBoost configuration used for the reported XGBoost results. For reproduction, ensure XGBoost is installed and record the exact Python and package versions, data snapshot, script revision, and command-line arguments used.
 
 The corrected script reports descriptive results. Do not infer statistical significance from descriptive means alone.
 
