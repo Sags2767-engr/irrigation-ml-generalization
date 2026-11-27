@@ -5,7 +5,10 @@ Datasets
   A) Arnesano (Italy) precision-irrigation data, daily means (Feb-Sep 2025), 4 sectors.
   B) ISMN soil moisture (REMEDHUS Spain + SCAN USA) at ~5 cm with NASA POWER daily weather,
      5 stations, one row per day (12:00 UTC), 2021-01-20 to 2024-11-20.
-  Weather in both datasets is the daily value for the calendar day of the row.
+  Weather in both datasets is aligned to the previous completed calendar day: a soil-moisture
+  observation dated D uses daily weather for D-1. The rain3 feature is the 3-day rainfall sum
+  ending on that weather day (D-3 through D-1). This avoids using a same-day daily aggregate
+  that may include weather occurring after the observation time.
 
 Target  need = 1 if the mean soil moisture over the next 24 h is below the site threshold
   Arnesano : the farm's own start threshold (40, 40, 80, 50 for sectors 1, 2, 4, 5)
@@ -16,7 +19,7 @@ Features (shared by both datasets, same units)
   temp         air temperature at 2 m, daily mean, deg C
   rh           relative humidity at 2 m, daily mean, %
   rain         daily rain, mm
-  rain3        rain over today and the previous 2 days, mm
+  rain3        rain over the weather day and its previous 2 days, mm
 Wind and radiation are not used: Arnesano and POWER differ in units and measurement height.
 
 Run
@@ -60,7 +63,7 @@ SEEDS = [0, 1, 2]
 
 # ------------------------------------------------------------------ loaders
 def daily_weather(w):
-    """w: daily frame (date index) with temp, rh, rain. Adds rain3 (today + previous 2 days)."""
+    """Daily weather indexed by date; rain3 sums the weather day and its previous 2 days."""
     w = w.asfreq("D")
     w["rain3"] = w["rain"].rolling(3, min_periods=3).sum()
     return w
